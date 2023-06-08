@@ -16,7 +16,7 @@ const goerliSettings = {
     network: Network.ETH_GOERLI,
 }
 
-const main = async (network: string, command: string, addr: string, tx: string) => {
+const main = async (network: string, command: string, addr: string, tx: string, contract: string) => {
     let setting: Setting = {apiKey: '', network: Network.ETH_GOERLI}
     switch (network) {
         case 'goerli':
@@ -51,6 +51,14 @@ const main = async (network: string, command: string, addr: string, tx: string) 
             console.log(`Balance:`, balance)
             console.log(`${balance.toBigInt()} wei`)
             break
+        case 'gettokenbalance':
+            if (!addr) {
+                throw Error('addr is empty')
+            }
+            const tokenbalance = await alchemy.core.getTokenBalances(addr, [contract])
+            console.log(`TokenBalance:`, tokenbalance)
+            console.log(`${tokenbalance.tokenBalances[0].tokenBalance} wei`)
+            break
         case 'sendtx':
             if (!tx) {
                 throw Error('tx is empty')
@@ -71,7 +79,8 @@ program
     .requiredOption('-c, --command <command>', 'target command', 'getblocknumber')
     .option('-a, --addr <addr>', 'target address', '')
     .option('-t, --tx <tx>', 'send transaction', '')
+    .option('-r, --contract <contractAddr>', 'contract address', '')
     .parse()
 const options = program.opts()
 
-main(options.network, options.command, options.addr, options.tx)
+main(options.network, options.command, options.addr, options.tx, options.contract)
